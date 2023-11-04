@@ -14,14 +14,23 @@ export class SharesService {
 
   public async getShare(payload: any): Promise<any> {
     const regex = new RegExp(payload, 'i');
-    // const shares = await this.companyModel.find(
-    //     { name: {$regex: regex} }
-    // );
-    const shares = await this.shareModel.find({
-        companyId: {
-            $in: await this.companyModel.find({ name: { $regex: regex } }).distinct('_id')
+
+    const shares = await this.shareModel.aggregate([
+        {
+          $lookup: {
+            from: 'companyModel',
+            localField: 'companyId',
+            foreignField: '_id',
+            as: 'companyDetails'
+          }
+        },
+        {
+          $match: {
+            'companyDetails.name': { $regex: regex }
+          }
         }
-    });
+      ]);
+      
 
     return { status: HttpStatus.OK, error:null, shares };
   }
