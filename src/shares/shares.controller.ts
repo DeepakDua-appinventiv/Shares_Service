@@ -14,9 +14,9 @@ export class SharesController {
     }
 
     @GrpcMethod(SHARES_SERVICE_NAME, 'getShare')
-    private getShare(payload: GetShareRequest): Promise<any> {
+    private getShare(payload: GetShareRequest): Promise<GetShareResponse> {
         console.log(payload);
         const companyId = payload.companyId ;
-        return this.service.getShare(companyId);
+        return this.service.getShare(payload);
     }
 }

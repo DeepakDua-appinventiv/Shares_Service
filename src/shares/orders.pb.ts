@@ -12,13 +12,8 @@ export interface Share {
   pendingShares: string[];
 }
 
-export interface SellShare {
-  shareId: string;
-  qty: number;
-  askPrice: number;
-}
-
 export interface GetShareRequest {
+  userId: string;
   companyId: string;
 }
 
@@ -28,26 +23,37 @@ export interface GetShareResponse {
   error: string[];
 }
 
+export interface GetInvestmentRequest {
+  userId: string;
+}
+
+export interface GetInvestmentResponse {
+  status: number;
+  message: string;
+}
+
 /** SellShare */
 export interface SellShareRequest {
   userId: string;
-  share: SellShare | undefined;
+  companyId: string;
+  sharesToSell: number;
+  askPrice: number;
 }
 
 export interface SellShareResponse {
-  status: string;
+  status: number;
   message: string;
 }
 
 /** BuyShare */
 export interface BuyShareRequest {
   userId: string;
-  shareId: string;
-  qty: number;
+  sellOrderId: string;
+  numberOfSharesToBuy: number;
 }
 
 export interface BuyShareResponse {
-  status: string;
+  status: number;
   message: string;
 }
 
@@ -81,6 +87,8 @@ export interface OrdersServiceClient {
 
   sellShare(request: SellShareRequest): Observable<SellShareResponse>;
 
+  getMyInvestment(request: GetInvestmentRequest): Observable<GetInvestmentResponse>;
+
   buyShare(request: BuyShareRequest): Observable<BuyShareResponse>;
 
   getBalance(request: GetBalanceRequest): Observable<GetBalanceResponse>;
@@ -92,6 +100,10 @@ export interface OrdersServiceController {
   getShare(request: GetShareRequest): Promise<GetShareResponse> | Observable<GetShareResponse> | GetShareResponse;
 
   sellShare(request: SellShareRequest): Promise<SellShareResponse> | Observable<SellShareResponse> | SellShareResponse;
+
+  getMyInvestment(
+    request: GetInvestmentRequest,
+  ): Promise<GetInvestmentResponse> | Observable<GetInvestmentResponse> | GetInvestmentResponse;
 
   buyShare(request: BuyShareRequest): Promise<BuyShareResponse> | Observable<BuyShareResponse> | BuyShareResponse;
 
@@ -106,7 +118,14 @@ export interface OrdersServiceController {
 
 export function OrdersServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getShare", "sellShare", "buyShare", "getBalance", "updateBalance"];
+    const grpcMethods: string[] = [
+      "getShare",
+      "sellShare",
+      "getMyInvestment",
+      "buyShare",
+      "getBalance",
+      "updateBalance",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("OrdersService", method)(constructor.prototype[method], method, descriptor);
