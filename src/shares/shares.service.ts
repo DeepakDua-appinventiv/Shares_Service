@@ -27,15 +27,10 @@ export class SharesService implements OnModuleInit {
     this.svc = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
 
-  // OnModuleInit(): void {
-  //   this.svc = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
-  // }
-
   public async searchCompany(
     payload: GetCompanyRequest,
   ): Promise<GetCompanyResponse> {
     try {
-      // const companies = await this.companyModel.find().select('name industry');
       const companyName  = payload.name;
 
       let companies;
@@ -43,15 +38,16 @@ export class SharesService implements OnModuleInit {
       if(companyName){
         companies = await this.companyModel.aggregate([
           {
-            $match: { name: { $regex: new RegExp(companyName, 'i') } }           },
+            $match: { name: { $regex: new RegExp(companyName, 'i') } }           
+          },
           {
-            $project: { name: 1, industry: 1, _id: 0 }
+            $project: {  _id: 1, name: 1, industry: 1 }
           }
         ]);
       }else{
        companies = await this.companyModel.aggregate([
         {
-          $project: { name: 1, industry: 1, _id: 0 },
+          $project: { _id: 1, name: 1, industry: 1 },
         },
       ]);
     }
@@ -78,35 +74,4 @@ export class SharesService implements OnModuleInit {
       return { status: 500, shares: [], error: ['Error retrieving shares'] };
     }
   }
-  //   try {
-  //   const { userId, name } = payload;
-  //   const regex = new RegExp(name, 'i');
-
-  //   const shares = await this.shareModel.aggregate([
-  //       {
-  //         $match: {
-  //           $and: [
-  //               { userId: { $ne: userId } },
-  //               { 'companyDetails.name': { $regex: regex } }
-  //           ]
-  //         }
-  //       },
-  //       {
-  //         $lookup: {
-  //           from: 'companyModel',
-  //           localField: 'companyId',
-  //           foreignField: '_id',
-  //           as: 'companyDetails'
-  //         }
-  //       },
-  //       {
-  //           $sort: { currentPrice: 1 }
-  //       }
-  //     ]);
-
-  //   return { status: HttpStatus.OK, error:null, shares };
-  //   }catch (error) {
-  //       return { status: HttpStatus.INTERNAL_SERVER_ERROR, error: error.message, shares: [] };
-  //   }
-  // }
 }
