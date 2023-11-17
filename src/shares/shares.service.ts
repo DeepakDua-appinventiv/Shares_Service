@@ -7,6 +7,8 @@ import {
   GetCompanyResponse,
   GetShareRequest,
   GetShareResponse,
+  ShareUpdate,
+  UpdateShareRequest,
 } from './shares.pb';
 import mongoose, { Model, Mongoose } from 'mongoose';
 import { ORDERS_SERVICE_NAME, OrdersServiceClient } from './orders.pb';
@@ -26,6 +28,24 @@ export class SharesService implements OnModuleInit {
   public onModuleInit(): void {
     this.svc = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
+
+  public async updateBoughtShares(userId: string, sharesBought: any, askPrice: number): Promise<void> {
+    try {
+      if (!Array.isArray(sharesBought)) {
+            throw new Error('sharesBought is not an array');
+      }
+      const uid = new mongoose.Types.ObjectId(userId);
+      const shareIds = sharesBought.map((share: any) => new mongoose.Types.ObjectId(share.shareId));
+      await this.shareModel.updateMany(
+        { _id: { $in: shareIds } }, 
+        { $set: { userId: uid, currentPrice: askPrice } }, 
+      );
+    } catch (error) {
+        console.error('Error updating shares:', error);
+        throw new Error('Failed to update shares');
+    }
+  }
+
 
   public async searchCompany(
     payload: GetCompanyRequest,
