@@ -14,6 +14,7 @@ import mongoose, { Model, Mongoose } from 'mongoose';
 import { ORDERS_SERVICE_NAME, OrdersServiceClient } from './orders.pb';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { RESPONSE_MESSAGES } from 'src/common/shares.constants';
 
 @Injectable()
 export class SharesService implements OnModuleInit {
@@ -31,9 +32,6 @@ export class SharesService implements OnModuleInit {
 
   public async updateBoughtShares(userId: string, sharesBought: any, askPrice: number): Promise<void> {
     try {
-      if (!Array.isArray(sharesBought)) {
-            throw new Error('sharesBought is not an array');
-      }
       const uid = new mongoose.Types.ObjectId(userId);
       const shareIds = sharesBought.map((share: any) => new mongoose.Types.ObjectId(share.shareId));
       await this.shareModel.updateMany(
@@ -91,7 +89,7 @@ export class SharesService implements OnModuleInit {
       return shares;
     } 
       catch (error) {
-      return { status: 500, shares: [], error: ['Error retrieving shares'] };
+      return { status: 500, shares: [], error: [RESPONSE_MESSAGES.SHARES_ERROR] };
     }
   }
 }
