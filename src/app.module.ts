@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 // import { SeedModule } from 'seed/seed.module';
 import { SharesModule } from './shares/shares.module';
+import config from './common/config.common';
 
 @Module({
   imports: [
-    MongooseModule.forRoot("mongodb://localhost:27017/comapanyDB"),
+    MongooseModule.forRoot(config.DB_NAME),
     SharesModule,
     // SeedModule
   ],
